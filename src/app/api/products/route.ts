@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getApiUrl } from "@/lib/apiConfig";
 
-// Use environment variables for API base URL with fallbacks
-const BASE_URL = process.env.API_BASE_URL || 
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  (process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:9002/api' 
-    : 'https://admin.codecafelab.in/api');
-const BACKEND_URL = `${BASE_URL}/products`;
+const BACKEND_URL = getApiUrl('/products');
 
 export async function GET() {
   const backendRes = await fetch(BACKEND_URL);

@@ -39,7 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminName = "Admin" }) => {
   const { logout } = useAuth();
   const [adminData, setAdminData] = useState({
     name: adminName,
-    email: "antima142005@gmail.com"
+    email: "codecafelabdev@gmail.com"
   });
   const activeItemRef = useRef<HTMLLIElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ adminName = "Admin" }) => {
       .then((res) => {
         setAdminData({
           name: res.data.user?.name || "Admin",
-          email: res.data.user?.email || "antima142005@gmail.com"
+          email: res.data.user?.email || "codecafelabdev@gmail.com"
         });
       })
       .catch((err) => {

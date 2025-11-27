@@ -173,11 +173,21 @@ const WhyChooseUsPage: React.FC = () => {
 
                   {item.image_url && (
                     <div className="mb-4">
-                      <Image
-                        src={item.image_url}
-                        alt={item.title}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
+                      {/* Validate image URL - skip if it's a Google image search URL */}
+                      {item.image_url && !item.image_url.includes('google.com/imgres') ? (
+                        <Image
+                          src={item.image_url}
+                          alt={item.title}
+                          width={400}
+                          height={128}
+                          className="w-full h-32 object-cover rounded-lg"
+                          unoptimized={item.image_url.startsWith('http') && !item.image_url.includes('res.cloudinary.com')}
+                        />
+                      ) : (
+                        <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-sm">
+                          Invalid image URL
+                        </div>
+                      )}
                     </div>
                   )}
 

@@ -9,7 +9,7 @@ import Image from "next/image";
 const SettingsPage: React.FC = () => {
   const [profileData, setProfileData] = useState({
     name: "Admin",
-    email: "antima142005@gmail.com",
+    email: "codecafelabdev@gmail.com",
     bio: "System Administrator",
     avatar: "",
   });
@@ -29,7 +29,7 @@ const SettingsPage: React.FC = () => {
       .then((res) => {
         setProfileData({
           name: res.data.user?.name || "Admin",
-          email: res.data.user?.email || "antima142005@gmail.com",
+          email: res.data.user?.email || "codecafelabdev@gmail.com",
           bio: "System Administrator",
           avatar: "",
         });

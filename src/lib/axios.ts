@@ -1,10 +1,10 @@
 import axios from "axios";
+import { getApiBaseUrl } from "./apiConfig";
 
-// Use Next.js API routes (relative URLs) to avoid CORS issues
-// The Next.js API routes will proxy requests to the backend server
-// This way, all requests go through the Next.js server, avoiding CORS
+// Call backend directly on port 9002 (or production URL)
+// This bypasses Next.js API routes and goes straight to the backend
 const apiClient = axios.create({
-  baseURL: '/api', // Use Next.js API routes
+  baseURL: getApiBaseUrl(), // Direct backend URL: http://localhost:9002/api in dev
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -12,9 +12,16 @@ const apiClient = axios.create({
   },
 });
 
-// Add request interceptor to handle errors
+// Add request interceptor to automatically include auth token
 apiClient.interceptors.request.use(
   (config) => {
+    // Only access localStorage on client-side (browser)
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
     return config;
   },
   (error) => {
@@ -22,6 +29,34 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Removed token interceptor - APIs now work without authentication tokens
+// Add response interceptor to handle 401 errors (unauthorized)
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // If we get a 401, the token might be invalid or expired
+    if (error.response?.status === 401) {
+      // Only handle logout on client-side
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        const isLoginPage = currentPath === '/login' || currentPath === '/auth';
+        
+        // Clear auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('user');
+        
+        // Only redirect if not already on login page and not making a login request
+        const isLoginRequest = error.config?.url?.includes('/auth/login');
+        if (!isLoginPage && !isLoginRequest) {
+          // Use router if available, otherwise use window.location
+          window.location.href = '/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;

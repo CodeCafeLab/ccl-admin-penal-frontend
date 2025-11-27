@@ -1,20 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getApiUrl } from "@/lib/apiConfig";
 
-// Use environment variables for API base URL with fallbacks
-// Backend endpoint: http://localhost:9002/api/auth/login
-const getBaseUrl = () => {
-  const url = process.env.API_BASE_URL || 
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    (process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:9002' 
-      : 'https://admin.codecafelab.in');
-  
-  // Remove /api suffix if present, as endpoints will add it
-  return url.replace(/\/api$/, '');
-};
-
-const BASE_URL = getBaseUrl();
-const LOGIN_ENDPOINT = `${BASE_URL}/api/auth/login`;
+// Backend endpoint: /api/auth/login
+const LOGIN_ENDPOINT = getApiUrl('/auth/login');
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,46 +48,19 @@ export async function POST(request: NextRequest) {
       { 
         error: "An error occurred during authentication",
         details: error.message || "Unknown error",
-        backendUrl: LOGIN_ENDPOINT
+        backendUrl: LOGIN_ENDPOINT,
+        environment: process.env.NODE_ENV
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-
-  if (!authHeader) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const backendRes = await fetch(`${BASE_URL}/api/auth/profile`, {
-      method: "GET",
-      headers: {
-        Authorization: authHeader,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const contentType = backendRes.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      const text = await backendRes.text();
-      console.error("Non-JSON response from profile endpoint:", text);
-      return NextResponse.json(
-        { error: "Profile service is currently unavailable" },
-        { status: 503 }
-      );
-    }
-
-    const data = await backendRes.json();
-    return NextResponse.json(data, { status: backendRes.status });
-  } catch (error) {
-    console.error("Error in profile route:", error);
-    return NextResponse.json(
-      { error: "An error occurred while fetching profile" },
-      { status: 500 }
-    );
-  }
+// GET method not supported for login endpoint
+// Use POST to login, or GET /api/auth/profile to get user profile
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST to login." },
+    { status: 405 }
+  );
 }
