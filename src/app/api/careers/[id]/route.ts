@@ -3,10 +3,10 @@ import { getApiUrl } from "@/lib/apiConfig";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const backendRes = await fetch(getApiUrl(`/careers/${id}`), {
       method: "GET",
       headers: {
@@ -27,10 +27,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const authHeader = request.headers.get("authorization");
     const body = await request.json();
 
@@ -56,10 +56,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const authHeader = request.headers.get("authorization");
 
     const backendRes = await fetch(getApiUrl(`/careers/${id}`), {

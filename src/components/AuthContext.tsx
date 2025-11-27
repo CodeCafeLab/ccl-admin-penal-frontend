@@ -15,11 +15,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize with false to avoid hydration mismatch
   // Will be updated in useEffect on client side
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setIsMounted(true);
     // Check localStorage for auth state only on client side
     if (typeof window !== 'undefined') {
       const auth = localStorage.getItem("isAuthenticated");

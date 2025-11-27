@@ -15,10 +15,11 @@ export async function POST(request: NextRequest) {
 
     const data = await backendRes.json();
     return NextResponse.json(data, { status: backendRes.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error proxying contact POST request:", error);
     return NextResponse.json(
-      { error: "Failed to process contact request", message: error.message },
+      { error: "Failed to process contact request", message: errorMessage },
       { status: 500 }
     );
   }
@@ -39,11 +40,12 @@ export async function GET() {
 
     const data = await backendRes.json();
     return NextResponse.json(data, { status: backendRes.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error proxying contact GET request:", error);
     return NextResponse.json(
-      { error: "Failed to fetch contact messages", message: error.message },
-      { status: error.message?.includes('404') ? 404 : 500 }
+      { error: "Failed to fetch contact messages", message: errorMessage },
+      { status: errorMessage.includes('404') ? 404 : 500 }
     );
   }
 }

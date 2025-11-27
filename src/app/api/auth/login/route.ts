@@ -40,14 +40,17 @@ export async function POST(request: NextRequest) {
 
     const data = await backendRes.json();
     return NextResponse.json(data, { status: backendRes.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     console.error("[Login API] Error in login route:", error);
-    console.error("[Login API] Error message:", error.message);
-    console.error("[Login API] Error stack:", error.stack);
+    console.error("[Login API] Error message:", errorMessage);
+    console.error("[Login API] Error stack:", errorStack);
     return NextResponse.json(
       { 
         error: "An error occurred during authentication",
-        details: error.message || "Unknown error",
+        details: errorMessage,
         backendUrl: LOGIN_ENDPOINT,
         environment: process.env.NODE_ENV
       },

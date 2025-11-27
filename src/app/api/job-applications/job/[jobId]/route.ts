@@ -3,10 +3,10 @@ import { getApiUrl } from "@/lib/apiConfig";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { jobId: string } }
+  { params }: { params: Promise<{ jobId: string }> }
 ) {
   try {
-    const { jobId } = params;
+    const { jobId } = await params;
     const backendRes = await fetch(getApiUrl(`/job-applications/job/${jobId}`), {
       method: "GET",
       headers: {
