@@ -1,0 +1,71 @@
+name: Deploy CCL Admin Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy CCL Admin Frontend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 168.231.112.124
+          username: root
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            set -e
+            echo "🚀 Deploying CCL Admin Frontend..."
+            
+            DEPLOY_DIR="/var/www/ccl-admin-penal-frontend"
+            REPO_URL="https://github.com/CodeCafeLab/ccl-admin-penal-frontend.git"
+            BRANCH="main"
+            
+            # Navigate to deployment directory
+            mkdir -p "$DEPLOY_DIR"
+            cd "$DEPLOY_DIR"
+            
+            # Pull latest code
+            if [ -d .git ]; then
+              echo "📥 Pulling latest code..."
+              git fetch origin
+              git reset --hard "origin/${BRANCH}"
+              git clean -fd
+            else
+              echo "📥 Cloning repository..."
+              git clone --depth 1 --branch "$BRANCH" "$REPO_URL" .
+            fi
+            
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            npm install --legacy-peer-deps
+            
+            # Build the application
+            echo "🔨 Building application..."
+            npm run build
+            
+            # Create PM2 ecosystem file for port configuration
+            cat > ecosystem.config.js << EOF
+            module.exports = {
+              apps: [{
+                name: 'ccl-admin-frontend',
+                script: 'npm',
+                args: 'run start',
+                cwd: '$DEPLOY_DIR',
+                env: {
+                  PORT: 3001
+                }
+              }]
+            };
+            EOF
+
+            # Restart PM2 process
+            echo "🔄 Restarting PM2 process..."
+            pm2 restart ccl-admin-frontend || pm2 start ecosystem.config.js
+            
+            echo "✅ CCL Admin Frontend deployed successfully!"
+
