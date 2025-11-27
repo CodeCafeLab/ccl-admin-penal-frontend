@@ -48,14 +48,14 @@ jobs:
             echo "🔨 Building application..."
             npm run build
             
-            # Create PM2 ecosystem file for port configuration
-            cat > ecosystem.config.js << EOF
+            # Create PM2 ecosystem file for port configuration (using .cjs for ES module projects)
+            cat > ecosystem.config.cjs << 'EOF'
             module.exports = {
               apps: [{
                 name: 'ccl-admin-frontend',
                 script: 'npm',
                 args: 'run start',
-                cwd: '$DEPLOY_DIR',
+                cwd: '/var/www/ccl-admin-penal-frontend',
                 env: {
                   PORT: 3001
                 }
@@ -65,7 +65,7 @@ jobs:
 
             # Restart PM2 process
             echo "🔄 Restarting PM2 process..."
-            pm2 restart ccl-admin-frontend || pm2 start ecosystem.config.js
+            pm2 restart ccl-admin-frontend || pm2 start ecosystem.config.cjs
             
             echo "✅ CCL Admin Frontend deployed successfully!"
 
